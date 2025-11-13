@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './App.css';
-
 // COLOR THEME: BLUE, WHITE, RED
 const colors = {
   primary: '#1e3a8a',     // Dark Blue

@@ -1,67 +1,85 @@
-import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
-import '../navbar.css';
+// ADD THIS COMPONENT BEFORE MAIN APP COMPONENT
 
-const Navbar = ({ translations, toggleLanguage, currentLanguage }) => {
-  const location = useLocation();
-
+// FOOTER COMPONENT WITH LOGO
+const Footer = ({ translations, currentLanguage }) => {
   return (
-    <nav className="navbar">
-      <div className="nav-container">
-        {/* Logo */}
-        <div className="nav-brand">
-          <Link to="/" className="brand-link">
-            <div className="brand-logo">🏢</div>
-            <div className="brand-text">
-              <h2>K.E COCO</h2>
-              <span>Services</span>
+    <footer style={{ 
+      background: colors.primary,
+      color: 'white',
+      padding: '3rem 2rem',
+      marginTop: 'auto'
+    }}>
+      <div style={{ 
+        maxWidth: '1200px', 
+        margin: '0 auto',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+        gap: '3rem'
+      }}>
+        {/* Company Info */}
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
+            <img 
+              src="/kecoco-logo.png" 
+              alt="K.E COCO Services" 
+              style={{ 
+                height: '50px', 
+                width: 'auto',
+                borderRadius: '8px',
+                objectFit: 'contain'
+              }}
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+            <h3 style={{ margin: 0, fontSize: '1.5rem' }}>K.E COCO SERVICES</h3>
+          </div>
+          <p style={{ color: '#d1d5db', lineHeight: '1.6' }}>
+            Your trusted partner for all government and construction services in Rwanda.
+          </p>
+        </div>
+
+        {/* Contact Info */}
+        <div>
+          <h4 style={{ marginBottom: '1rem', color: colors.accent }}>Contact Info</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <FaMapMarkerAlt />
+              <span>Kigali City Center, Rwanda</span>
             </div>
-          </Link>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <FaPhone />
+              <span>+250 788 123 456</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <FaEnvelope />
+              <span>info@kecoco.rw</span>
+            </div>
+          </div>
         </div>
 
-        {/* Navigation Links */}
-        <div className="nav-links">
-          <Link 
-            to="/" 
-            className={`nav-link ${location.pathname === '/' ? 'active' : ''}`}
-          >
-            {translations.home}
-          </Link>
-          <Link 
-            to="/services" 
-            className={`nav-link ${location.pathname === '/services' ? 'active' : ''}`}
-          >
-            {translations.services}
-          </Link>
-          <Link 
-            to="/contact" 
-            className={`nav-link ${location.pathname === '/contact' ? 'active' : ''}`}
-          >
-            {translations.contact}
-          </Link>
-          <Link 
-            to="/request" 
-            className={`nav-link ${location.pathname === '/request' ? 'active' : ''}`}
-          >
-            {translations.request}
-          </Link>
-          <Link 
-            to="/admin/login" 
-            className={`nav-link admin-link ${location.pathname.includes('/admin') ? 'active' : ''}`}
-          >
-            {translations.admin}
-          </Link>
-        </div>
-
-        {/* Language Toggle */}
-        <div className="nav-actions">
-          <button onClick={toggleLanguage} className="language-btn">
-            {currentLanguage === 'en' ? 'Kinyarwanda' : 'English'}
-          </button>
+        {/* Quick Links */}
+        <div>
+          <h4 style={{ marginBottom: '1rem', color: colors.accent }}>Quick Links</h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <a href="/services" style={{ color: '#d1d5db', textDecoration: 'none' }}>Our Services</a>
+            <a href="/contact" style={{ color: '#d1d5db', textDecoration: 'none' }}>Contact Us</a>
+            <a href="/request" style={{ color: '#d1d5db', textDecoration: 'none' }}>Request Service</a>
+            <a href="/admin/login" style={{ color: '#d1d5db', textDecoration: 'none' }}>Admin Login</a>
+          </div>
         </div>
       </div>
-    </nav>
+      
+      {/* Copyright */}
+      <div style={{ 
+        textAlign: 'center', 
+        marginTop: '3rem', 
+        paddingTop: '2rem', 
+        borderTop: '1px solid #374151',
+        color: '#9ca3af'
+      }}>
+        <p>&copy; 2024 K.E COCO Services. All rights reserved.</p>
+      </div>
+    </footer>
   );
 };
-
-export default Navbar;
