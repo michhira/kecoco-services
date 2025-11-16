@@ -1,3 +1,16 @@
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+
+// COLOR THEME: BLUE, WHITE, RED
+const colors = {
+  primary: '#1e3a8a',     // Dark Blue
+  secondary: '#dc2626',   // Red
+  accent: '#3b82f6',      // Light Blue
+  background: '#ffffff',  // White
+  text: '#1f2937',        // Dark Gray
+  lightText: '#6b7280'    // Light Gray
+};
+
 const AdminDashboard = ({ translations }) => {
   const [dashboardData, setDashboardData] = useState({
     totalRequests: 0,
@@ -10,19 +23,48 @@ const AdminDashboard = ({ translations }) => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Simulate loading real data
+    // Load real data from localStorage
     const loadDashboardData = () => {
+      const requests = JSON.parse(localStorage.getItem('kecoco_service_requests') || '[]');
+      const messages = JSON.parse(localStorage.getItem('kecoco_messages') || '[]');
+
+      const totalRequests = requests.length;
+      const pending = requests.filter(r => r.status === 'pending').length;
+      const completed = requests.filter(r => r.status === 'completed').length;
+
+      // Calculate revenue (simplified)
+      const revenue = requests.reduce((sum, req) => {
+        const priceMap = {
+          'Government Services': 5000,
+          'Financial Services': 10000,
+          'Construction Services': 0, // Contact for quote
+          'Land Services': 15000
+        };
+        return sum + (priceMap[req.service] || 0);
+      }, 0);
+
+      // Recent activities
+      const recentActivities = [
+        ...requests.slice(-2).map(req => ({
+          user: req.name,
+          action: `submitted a ${req.service} request`,
+          time: new Date(req.timestamp).toLocaleString(),
+          icon: '🆕'
+        })),
+        ...messages.slice(-2).map(msg => ({
+          user: msg.name,
+          action: 'sent a contact message',
+          time: new Date(msg.timestamp).toLocaleString(),
+          icon: '📧'
+        }))
+      ].sort((a, b) => new Date(b.time) - new Date(a.time)).slice(0, 4);
+
       setDashboardData({
-        totalRequests: 156,
-        pending: 23,
-        completed: 133,
-        revenue: 4200000,
-        recentActivities: [
-          { user: 'John Doe', action: 'submitted a new service request', time: '2 hours ago', icon: '🆕' },
-          { user: 'Tax Payment', action: 'request completed successfully', time: '5 hours ago', icon: '✅' },
-          { user: 'Jane Smith', action: 'contacted customer support', time: '1 day ago', icon: '📞' },
-          { user: 'Land Registration', action: 'new service package created', time: '2 days ago', icon: '📋' }
-        ]
+        totalRequests,
+        pending,
+        completed,
+        revenue,
+        recentActivities
       });
     };
 
@@ -47,22 +89,22 @@ const AdminDashboard = ({ translations }) => {
   return (
     <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)' }}>
       {/* Header */}
-      <div style={{ 
+      <div style={{
         background: colors.primary,
         color: 'white',
         padding: '2rem',
         boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
       }}>
-        <div style={{ 
-          maxWidth: '1200px', 
+        <div style={{
+          maxWidth: '1200px',
           margin: '0 auto',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center'
         }}>
           <div>
-            <h1 style={{ 
-              fontSize: '2.5rem', 
+            <h1 style={{
+              fontSize: '2.5rem',
               fontWeight: 'bold',
               marginBottom: '0.5rem'
             }}>
@@ -72,17 +114,17 @@ const AdminDashboard = ({ translations }) => {
               {translations.welcomeUser}, Admin! - {translations.yourDashboard}
             </p>
           </div>
-          <button 
+          <button
             onClick={() => {
               localStorage.removeItem('admin');
               localStorage.removeItem('adminToken');
               navigate('/');
             }}
-            style={{ 
+            style={{
               background: colors.secondary,
-              color: 'white', 
-              border: 'none', 
-              padding: '0.75rem 1.5rem', 
+              color: 'white',
+              border: 'none',
+              padding: '0.75rem 1.5rem',
               borderRadius: '6px',
               cursor: 'pointer',
               fontSize: '1.1rem',
@@ -102,8 +144,8 @@ const AdminDashboard = ({ translations }) => {
         <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
           {/* Quick Actions */}
           <div style={{ marginBottom: '3rem' }}>
-            <h2 style={{ 
-              fontSize: '2rem', 
+            <h2 style={{
+              fontSize: '2rem',
               color: colors.primary,
               marginBottom: '1.5rem',
               fontWeight: '600'
@@ -111,13 +153,13 @@ const AdminDashboard = ({ translations }) => {
               🚀 Quick Actions
             </h2>
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-              <button 
+              <button
                 onClick={handleManageRequests}
-                style={{ 
+                style={{
                   background: colors.accent,
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '1rem 1.5rem', 
+                  color: 'white',
+                  border: 'none',
+                  padding: '1rem 1.5rem',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   fontSize: '1rem',
@@ -134,13 +176,13 @@ const AdminDashboard = ({ translations }) => {
                 }}>
                 📋 Manage Requests
               </button>
-              <button 
+              <button
                 onClick={handleViewAnalytics}
-                style={{ 
+                style={{
                   background: colors.secondary,
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '1rem 1.5rem', 
+                  color: 'white',
+                  border: 'none',
+                  padding: '1rem 1.5rem',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   fontSize: '1rem',
@@ -157,13 +199,13 @@ const AdminDashboard = ({ translations }) => {
                 }}>
                 📈 View Analytics
               </button>
-              <button 
+              <button
                 onClick={handleManageServices}
-                style={{ 
+                style={{
                   background: '#10b981',
-                  color: 'white', 
-                  border: 'none', 
-                  padding: '1rem 1.5rem', 
+                  color: 'white',
+                  border: 'none',
+                  padding: '1rem 1.5rem',
                   borderRadius: '8px',
                   cursor: 'pointer',
                   fontSize: '1rem',
@@ -184,9 +226,9 @@ const AdminDashboard = ({ translations }) => {
           </div>
 
           {/* Stats Cards */}
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
             gap: '2rem',
             marginBottom: '3rem'
           }}>
@@ -196,7 +238,7 @@ const AdminDashboard = ({ translations }) => {
               { title: translations.completed, value: dashboardData.completed, color: '#10b981', icon: '✅' },
               { title: 'Revenue', value: `RWF ${dashboardData.revenue.toLocaleString()}`, color: '#8b5cf6', icon: '💰' }
             ].map((stat, index) => (
-              <div key={index} style={{ 
+              <div key={index} style={{
                 background: 'white',
                 padding: '2rem',
                 borderRadius: '12px',
@@ -208,15 +250,15 @@ const AdminDashboard = ({ translations }) => {
               onMouseOver={(e) => e.currentTarget.style.transform = 'translateY(-5px)'}
               onMouseOut={(e) => e.currentTarget.style.transform = 'translateY(0)'}>
                 <div style={{ fontSize: '2.5rem', marginBottom: '1rem' }}>{stat.icon}</div>
-                <h3 style={{ 
-                  fontSize: '1.2rem', 
+                <h3 style={{
+                  fontSize: '1.2rem',
                   color: colors.lightText,
                   marginBottom: '0.5rem'
                 }}>
                   {stat.title}
                 </h3>
-                <p style={{ 
-                  fontSize: '2.5rem', 
+                <p style={{
+                  fontSize: '2.5rem',
                   color: stat.color,
                   fontWeight: 'bold',
                   margin: 0
@@ -228,24 +270,24 @@ const AdminDashboard = ({ translations }) => {
           </div>
 
           {/* Recent Activity */}
-          <div style={{ 
+          <div style={{
             background: 'white',
             padding: '2.5rem',
             borderRadius: '12px',
             boxShadow: '0 8px 25px rgba(0, 0, 0, 0.1)'
           }}>
-            <h2 style={{ 
-              fontSize: '2rem', 
+            <h2 style={{
+              fontSize: '2rem',
               color: colors.primary,
               marginBottom: '2rem',
               fontWeight: '600'
             }}>
               📝 Recent Activity
             </h2>
-            
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               {dashboardData.recentActivities.map((activity, index) => (
-                <div key={index} style={{ 
+                <div key={index} style={{
                   display: 'flex',
                   alignItems: 'center',
                   gap: '1rem',
@@ -257,7 +299,7 @@ const AdminDashboard = ({ translations }) => {
                 }}
                 onMouseOver={(e) => e.currentTarget.style.transform = 'translateX(5px)'}
                 onMouseOut={(e) => e.currentTarget.style.transform = 'translateX(0)'}>
-                  <div style={{ 
+                  <div style={{
                     background: colors.accent,
                     width: '50px',
                     height: '50px',
@@ -271,8 +313,8 @@ const AdminDashboard = ({ translations }) => {
                     {activity.icon}
                   </div>
                   <div style={{ flex: 1 }}>
-                    <p style={{ 
-                      fontSize: '1.1rem', 
+                    <p style={{
+                      fontSize: '1.1rem',
                       margin: 0,
                       fontWeight: '500'
                     }}>
@@ -289,3 +331,5 @@ const AdminDashboard = ({ translations }) => {
     </div>
   );
 };
+
+export default AdminDashboard;
